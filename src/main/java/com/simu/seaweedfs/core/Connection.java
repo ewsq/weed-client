@@ -398,6 +398,9 @@ class Connection {
      */
     @SuppressWarnings("unchecked")
     private SystemClusterStatus fetchSystemClusterStatus(String masterUrl) throws IOException {
+        if (!ConnectionUtil.checkUriAlive(this.httpClient, leaderUrl)){
+            throw new SeaweedfsException("seaweedfs leader failed");
+        }
         MasterStatus leader;
         ArrayList<MasterStatus> peers;
         final HttpGet request = new HttpGet(masterUrl + RequestPathStrategy.checkClusterStatus);
@@ -601,6 +604,7 @@ class Connection {
 
         void updateSystemStatus() {
             try {
+                //TODO 这边不应该从缓存里取的
                 fetchSystemStatus(leaderUrl);
                 connectionClose = false;
             } catch (IOException e) {
