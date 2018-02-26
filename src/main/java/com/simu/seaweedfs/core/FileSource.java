@@ -28,7 +28,7 @@ public class FileSource implements InitializingBean, DisposableBean {
 
     private List<String> urls = new ArrayList<>(); // host:port
     private int connectionTimeout = 10;
-    private int statusExpiry = 10; // 每隔 10s 检查 master leader 的状态
+    private int statusExpiry = 5; // 每隔 5s 检查 master leader 的状态
     private int maxConnection = 100;
     private int idleConnectionExpiry = 30;
     private int maxConnectionsPreRoute = 1000;
