@@ -207,7 +207,8 @@ class Connection {
      * @return If result is false, that maybe core server is failover.
      */
     boolean isConnectionClose() {
-        return connectionClose;
+        this.pollClusterStatusThread.updateSystemStatus();
+        return this.connectionClose;
     }
 
     /**
@@ -398,9 +399,9 @@ class Connection {
      */
     @SuppressWarnings("unchecked")
     private SystemClusterStatus fetchSystemClusterStatus(String masterUrl) throws IOException {
-        if (!ConnectionUtil.checkUriAlive(this.httpClient, leaderUrl)){
-            throw new SeaweedfsException("seaweedfs leader failed");
-        }
+//        if (!ConnectionUtil.checkUriAlive(masterUrl)){
+//            throw new SeaweedfsException("seaweedfs master failed");
+//        }
         MasterStatus leader;
         ArrayList<MasterStatus> peers;
         final HttpGet request = new HttpGet(masterUrl + RequestPathStrategy.checkClusterStatus);
@@ -426,16 +427,14 @@ class Connection {
         if (map.get("IsLeader") == null || !((Boolean) map.get("IsLeader"))) {
             peers.add(new MasterStatus(masterUrl.replace("http://", "")));
             peers.remove(leader);
-            leader.setActive(
-                    ConnectionUtil.checkUriAlive(this.httpClient, leader.getUrl()));
-            if (!leader.isActive())
-                throw new SeaweedfsException("seaweedfs core leader is failover");
-        } else {
-            leader.setActive(true);
         }
+        leader.setActive(
+                ConnectionUtil.checkUriAlive(leader.getUrl()));
+        if (!leader.isActive())
+            throw new SeaweedfsException("seaweedfs core leader is failover");
 
         for (MasterStatus item : peers) {
-            item.setActive(ConnectionUtil.checkUriAlive(this.httpClient, item.getUrl()));
+            item.setActive(ConnectionUtil.checkUriAlive(item.getUrl()));
         }
 
         return new SystemClusterStatus(leader, peers);
@@ -465,7 +464,7 @@ class Connection {
                 if (responseMap.get("Leader") != null) {
                     result = ConnectionUtil.convertUrlWithScheme((String) responseMap.get("Leader"));
 
-                    if (ConnectionUtil.checkUriAlive(this.httpClient, result))
+                    if (ConnectionUtil.checkUriAlive(result))
                         return result;
                 }
             }
@@ -604,7 +603,6 @@ class Connection {
 
         void updateSystemStatus() {
             try {
-                //TODO 这边不应该从缓存里取的
                 fetchSystemStatus(leaderUrl);
                 connectionClose = false;
             } catch (IOException e) {
