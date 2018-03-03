@@ -5,7 +5,7 @@ package com.simu.seaweedfs.core.file;
 import java.io.Serializable;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class FileHandleStatus implements Serializable {
 

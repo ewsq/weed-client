@@ -7,7 +7,7 @@ import org.apache.http.Header;
 import java.util.Arrays;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class HeaderResponse {
 

@@ -16,7 +16,7 @@ import static com.simu.seaweedfs.core.Connection.LOOKUP_VOLUME_CACHE_ALIAS;
 /**
  * Master server operation wrapper.
  *
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class MasterWrapper {
 

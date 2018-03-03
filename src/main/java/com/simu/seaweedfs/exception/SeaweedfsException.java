@@ -5,7 +5,7 @@ package com.simu.seaweedfs.exception;
 import java.io.IOException;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class SeaweedfsException extends IOException {
 

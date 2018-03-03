@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Connection for seaweed file system.
  *
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 class Connection {
 

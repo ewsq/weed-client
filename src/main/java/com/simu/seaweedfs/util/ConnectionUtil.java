@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * Sample connection tools
  *
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class ConnectionUtil {
 

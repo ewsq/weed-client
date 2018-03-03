@@ -3,7 +3,7 @@
 package com.simu.seaweedfs.util;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class TimeToLiveBuilder {
 

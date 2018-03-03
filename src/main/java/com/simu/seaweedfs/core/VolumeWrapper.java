@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Volume server operation wrapper.
  *
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class VolumeWrapper {
 
