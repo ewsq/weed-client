@@ -641,7 +641,7 @@ class Connection {
                 leaderUrl = (systemClusterStatus.getLeader().getUrl());
                 log.info("seaweedfs core leader is change to [" + leaderUrl + "]");
             }
-            log.debug("seaweedfs core leader is found [" + leaderUrl + "]");
+            log.info("seaweedfs core leader is found [" + leaderUrl + "]");
         }
 
         private void shutdown() {
