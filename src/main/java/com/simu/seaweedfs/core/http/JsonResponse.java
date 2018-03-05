@@ -3,7 +3,7 @@
 package com.simu.seaweedfs.core.http;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class JsonResponse {
 

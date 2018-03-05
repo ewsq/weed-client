@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  * @create 2018-01-23 下午8:20
  **/
 public class FileSplitUtil {

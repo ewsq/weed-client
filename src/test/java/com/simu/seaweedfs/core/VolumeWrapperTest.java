@@ -14,7 +14,7 @@ import com.simu.seaweedfs.core.http.StreamResponse;
 import java.io.ByteArrayInputStream;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class VolumeWrapperTest {
     private static MasterWrapper masterWrapper;

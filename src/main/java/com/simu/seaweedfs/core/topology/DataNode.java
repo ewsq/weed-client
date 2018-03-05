@@ -5,7 +5,7 @@ package com.simu.seaweedfs.core.topology;
 import com.simu.seaweedfs.util.ConnectionUtil;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class DataNode {
 

@@ -5,7 +5,7 @@ package com.simu.seaweedfs.core.topology;
 import java.util.List;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class Layout {
 

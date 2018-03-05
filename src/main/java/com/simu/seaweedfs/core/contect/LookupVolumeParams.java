@@ -3,7 +3,7 @@
 package com.simu.seaweedfs.core.contect;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class LookupVolumeParams {
 

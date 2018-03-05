@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class LookupVolumeResult implements Serializable {
 

@@ -5,7 +5,7 @@ package com.simu.seaweedfs.core.topology;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class ReplicaPlacement {
 

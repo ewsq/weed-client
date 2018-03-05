@@ -3,7 +3,7 @@ package com.simu.seaweedfs.core.file;
 import java.util.List;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  * @create 2018-01-25 下午4:30
  **/
 public class ChunkManifest {

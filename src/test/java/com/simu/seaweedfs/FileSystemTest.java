@@ -7,7 +7,7 @@ import com.simu.seaweedfs.core.FileSource;
 import java.io.IOException;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class FileSystemTest {
 

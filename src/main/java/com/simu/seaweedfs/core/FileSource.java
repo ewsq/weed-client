@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Seaweed file system connection source.
  *
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class FileSource implements InitializingBean, DisposableBean {
 

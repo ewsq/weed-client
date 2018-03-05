@@ -8,7 +8,7 @@ import org.junit.Test;
 import com.simu.seaweedfs.FileSystemTest;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class ConnectionTest {
     @Test

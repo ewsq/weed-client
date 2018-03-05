@@ -5,7 +5,7 @@ package com.simu.seaweedfs.core.http;
 import java.io.*;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class StreamResponse {
 

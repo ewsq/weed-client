@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class FileTemplateTest {
     private static FileTemplate template;

@@ -3,7 +3,7 @@
 package com.simu.seaweedfs.exception;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class SeaweedfsFileNotFoundException extends SeaweedfsException {
 

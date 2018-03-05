@@ -30,7 +30,7 @@ import java.util.*;
 /**
  * Seaweed file system operation template.
  *
- * @author DengrongGuan Modified By DengrongGuan
+ * @author ChihoSin modified by DengrongGuan Modified By DengrongGuan
  */
 public class FileTemplate implements InitializingBean, DisposableBean {
 

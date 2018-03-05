@@ -1,7 +1,7 @@
 package com.simu.seaweedfs.core.file;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  * @create 2018-01-25 下午7:07
  **/
 public class FileBlock {

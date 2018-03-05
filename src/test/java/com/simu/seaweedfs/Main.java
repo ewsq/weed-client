@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  * @create 2018-02-07
  **/
 public class Main {
@@ -25,9 +25,10 @@ public class Main {
 // SeaweedFS master server port
 //        fileSource.setPort(port);
         List<String> urls = new ArrayList<>();
-        urls.add("192.168.1.204:9333");
-        urls.add("192.168.1.100:9333");
-        urls.add("192.168.1.200:9333");
+//        urls.add("192.168.1.204:9333");
+//        urls.add("192.168.1.100:9333");
+//        urls.add("192.168.1.200:9333");
+        urls.add("localhost:9333");
         fileSource.setUrls(urls);
         fileSource.setConnectionTimeout(1000);
 // Startup manager and listens for the change

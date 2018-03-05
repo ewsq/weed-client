@@ -5,7 +5,7 @@ package com.simu.seaweedfs.core.contect;
 import java.io.Serializable;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class PreAllocateVolumesResult implements Serializable {
 

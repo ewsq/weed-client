@@ -7,7 +7,7 @@ import com.simu.seaweedfs.util.ConnectionUtil;
 import java.io.Serializable;
 
 /**
- * @author DengrongGuan
+ * @author ChihoSin modified by DengrongGuan
  */
 public class AssignFileKeyResult implements Serializable {
 
