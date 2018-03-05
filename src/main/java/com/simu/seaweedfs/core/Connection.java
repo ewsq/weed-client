@@ -428,8 +428,10 @@ class Connection {
             peers.add(new MasterStatus(masterUrl.replace("http://", "")));
             peers.remove(leader);
         }
-        leader.setActive(
-                ConnectionUtil.checkUriAlive(leader.getUrl()));
+        leader.setActive(ConnectionUtil.checkUriAlive(leader.getUrl()));
+        if (systemClusterStatus != null && systemClusterStatus.getLeader() != null && !systemClusterStatus.getLeader().isActive() && leader.isActive()){
+            log.info("seaweedfs core leader recover [" + leaderUrl + "]");
+        }
         if (!leader.isActive())
             throw new SeaweedfsException("seaweedfs core leader is failover");
 
@@ -641,7 +643,6 @@ class Connection {
                 leaderUrl = (systemClusterStatus.getLeader().getUrl());
                 log.info("seaweedfs core leader is change to [" + leaderUrl + "]");
             }
-            log.info("seaweedfs core leader is found [" + leaderUrl + "]");
         }
 
         private void shutdown() {
