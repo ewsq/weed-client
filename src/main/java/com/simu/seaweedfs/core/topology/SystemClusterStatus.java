@@ -24,6 +24,8 @@ public class SystemClusterStatus implements Serializable {
         }
     }
 
+    public SystemClusterStatus(){}
+
     @Override
     public String toString() {
         return "SystemClusterStatus{" +

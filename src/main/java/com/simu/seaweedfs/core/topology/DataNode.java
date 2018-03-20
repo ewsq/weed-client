@@ -2,6 +2,7 @@
 
 package com.simu.seaweedfs.core.topology;
 
+import com.simu.seaweedfs.core.file.Size;
 import com.simu.seaweedfs.util.ConnectionUtil;
 
 /**
@@ -10,10 +11,46 @@ import com.simu.seaweedfs.util.ConnectionUtil;
 public class DataNode {
 
     private String url;
-    private String pubilcUrl;
+    private String publicUrl;
     private int volumes;
     private int free;
     private int max;
+    private boolean active;
+    private String dir;
+    private Size maxSize;
+    private Size freeSize;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getDir() {
+        return dir;
+    }
+
+    public void setDir(String dir) {
+        this.dir = dir;
+    }
+
+    public Size getMaxSize() {
+        return maxSize;
+    }
+
+    public void setMaxSize(Size maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    public Size getFreeSize() {
+        return freeSize;
+    }
+
+    public void setFreeSize(Size freeSize) {
+        this.freeSize = freeSize;
+    }
 
     public String getUrl() {
         return url;
@@ -23,12 +60,12 @@ public class DataNode {
         this.url = ConnectionUtil.convertUrlWithScheme(url);
     }
 
-    public String getPubilcUrl() {
-        return pubilcUrl;
+    public String getPublicUrl() {
+        return publicUrl;
     }
 
-    public void setPubilcUrl(String pubilcUrl) {
-        this.pubilcUrl = ConnectionUtil.convertUrlWithScheme(pubilcUrl);
+    public void setPublicUrl(String publicUrl) {
+        this.publicUrl = ConnectionUtil.convertUrlWithScheme(publicUrl);
     }
 
     public int getVolumes() {
@@ -59,10 +96,14 @@ public class DataNode {
     public String toString() {
         return "DataNode{" +
                 "url='" + url + '\'' +
-                ", pubilcUrl='" + pubilcUrl + '\'' +
+                ", publicUrl='" + publicUrl + '\'' +
                 ", volumes=" + volumes +
                 ", free=" + free +
                 ", max=" + max +
+                ", active=" + active +
+                ", dir=" + dir +
+                ", maxSize=" + maxSize.getSize() + maxSize.getUnit().getName() +
+                ", freeSize=" + freeSize.getSize() + freeSize.getUnit().getName() +
                 '}';
     }
 }

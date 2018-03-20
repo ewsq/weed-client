@@ -2,12 +2,16 @@
 
 package com.simu.seaweedfs.core;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simu.seaweedfs.core.contect.LookupVolumeResult;
 import com.simu.seaweedfs.core.contect.PreAllocateVolumesParams;
+import com.simu.seaweedfs.core.file.Size;
+import com.simu.seaweedfs.core.file.SizeUnit;
 import com.simu.seaweedfs.core.http.HeaderResponse;
 import com.simu.seaweedfs.core.topology.*;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.cache.HttpCacheStorage;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -55,6 +59,8 @@ class Connection {
 
     private String leaderUrl;
     private long statusExpiry;
+    private long volumeStatusCheckInterval;
+    private long volumeSizeWarnLimit;
     private int connectionTimeout;
     private boolean connectionClose = true;
     private boolean enableFileStreamCache;
@@ -67,6 +73,7 @@ class Connection {
     private long idleConnectionExpiry;
     private SystemClusterStatus systemClusterStatus;
     private SystemTopologyStatus systemTopologyStatus;
+    private PollSystemTopologyStatusThread pollSystemTopologyStatusThread;
     private PollClusterStatusThread pollClusterStatusThread;
     private ObjectMapper objectMapper = new ObjectMapper();
     private PoolingHttpClientConnectionManager clientConnectionManager;
@@ -80,6 +87,8 @@ class Connection {
      * @param leaderUrl                Leader server url.
      * @param connectionTimeout        Http connection timeout.
      * @param statusExpiry             Server status expiry.
+     * @param volumeStatusCheckInterval
+     * @param volumeSizeWarnLimit
      * @param idleConnectionExpiry     Http connection idle expiry.
      * @param maxConnection            Max http connection.
      * @param maxConnectionsPreRoute   Max connections pre route.
@@ -92,7 +101,7 @@ class Connection {
      * @param fileStreamCacheStorage   File stream cache storage.
      * @throws IOException Http connection is fail or server response within some error message.
      */
-    Connection(String leaderUrl, int connectionTimeout, long statusExpiry, long idleConnectionExpiry,
+    Connection(String leaderUrl, int connectionTimeout, long statusExpiry, long volumeStatusCheckInterval, long volumeSizeWarnLimit, long idleConnectionExpiry,
                int maxConnection, int maxConnectionsPreRoute, boolean enableLookupVolumeCache,
                long lookupVolumeCacheExpiry, int lookupVolumeCacheEntries,
                boolean enableFileStreamCache, int fileStreamCacheEntries, long fileStreamCacheSize,
@@ -100,11 +109,14 @@ class Connection {
             throws IOException {
         this.leaderUrl = leaderUrl;
         this.statusExpiry = statusExpiry;
+        this.volumeSizeWarnLimit = volumeSizeWarnLimit;
+        this.volumeStatusCheckInterval = volumeStatusCheckInterval;
         this.connectionTimeout = connectionTimeout;
         this.idleConnectionExpiry = idleConnectionExpiry;
         this.enableLookupVolumeCache = enableLookupVolumeCache;
         this.lookupVolumeCacheExpiry = lookupVolumeCacheExpiry;
         this.lookupVolumeCacheEntries = lookupVolumeCacheEntries;
+        this.pollSystemTopologyStatusThread = new PollSystemTopologyStatusThread();
         this.pollClusterStatusThread = new PollClusterStatusThread();
         this.idleConnectionMonitorThread = new IdleConnectionMonitorThread();
         this.clientConnectionManager = new PoolingHttpClientConnectionManager();
@@ -151,6 +163,12 @@ class Connection {
         }
         initCache();
         this.pollClusterStatusThread.updateSystemStatus();
+        try {
+            systemTopologyStatus = fetchSystemTopologyStatus(leaderUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.pollSystemTopologyStatusThread.start();
         this.pollClusterStatusThread.start();
         this.idleConnectionMonitorThread.start();
         log.info("seaweedfs master server connection is startup");
@@ -161,6 +179,7 @@ class Connection {
      */
     void stop() {
         closeCache();
+        this.pollSystemTopologyStatusThread.shutdown();
         this.pollClusterStatusThread.shutdown();
         this.idleConnectionMonitorThread.shutdown();
         log.info("seaweedfs master server connection is shutdown");
@@ -429,18 +448,33 @@ class Connection {
             peers.remove(leader);
         }
         leader.setActive(ConnectionUtil.checkUriAlive(leader.getUrl()));
-        if (systemClusterStatus != null && systemClusterStatus.getLeader() != null && !systemClusterStatus.getLeader().isActive() && leader.isActive()){
+        if (systemClusterStatus != null && systemClusterStatus.getLeader() != null && !systemClusterStatus.getLeader().isActive() && leader.isActive()) {
             log.info("seaweedfs core leader recover [" + leaderUrl + "]");
         }
         if (!leader.isActive())
+            //TODO 短信或邮件通知
             throw new SeaweedfsException("seaweedfs core leader is failover");
 
         for (MasterStatus item : peers) {
             item.setActive(ConnectionUtil.checkUriAlive(item.getUrl()));
+            if (!item.isActive()) {
+                //TODO 短信或邮件通知
+                String content = item.getUrl() + " 服务不可用！";
+                notifyWithSMS(content);
+                notifyWithEmail(content);
+            }
         }
 
         return new SystemClusterStatus(leader, peers);
 
+    }
+
+    private void notifyWithSMS(String content) {
+        log.error(content);
+    }
+
+    private void notifyWithEmail(String content) {
+        log.error(content);
     }
 
     /**
@@ -518,7 +552,25 @@ class Connection {
                                 dn.setMax((Integer) rawDn.get("Max"));
                                 dn.setVolumes((Integer) rawDn.get("Volumes"));
                                 dn.setUrl((String) rawDn.get("Url"));
-                                dn.setPubilcUrl((String) rawDn.get("PublicUrl"));
+                                dn.setPublicUrl((String) rawDn.get("PublicUrl"));
+                                try {
+                                    HttpGet httpRequest = new HttpGet(dn.getPublicUrl() + RequestPathStrategy.checkVolumeDisk);
+                                    JsonResponse response = fetchJsonResultByRequest(httpRequest);
+                                    Map map1 = objectMapper.readValue(response.json, Map.class);
+                                    dn.setActive(true);
+                                    ArrayList<Map> diskStatuses = (ArrayList<Map>) map1.get("DiskStatuses");
+                                    dn.setDir((String) diskStatuses.get(0).get("Dir"));
+                                    long allSize = (Long)diskStatuses.get(0).get("All");
+                                    long freeSize = (Long)diskStatuses.get(0).get("Free");
+                                    if (freeSize <= volumeSizeWarnLimit){
+                                        //TODO 容量告警
+                                    }
+                                    dn.setMaxSize(new Size(allSize, SizeUnit.B).human());
+                                    dn.setFreeSize(new Size(freeSize, SizeUnit.B).human());
+                                } catch (Exception e) {
+                                    log.error("check volume failed:",e);
+                                    dn.setActive(false);
+                                }
                                 dataNodes.add(dn);
                             }
                         rk.setDataNodes(dataNodes);
@@ -583,6 +635,31 @@ class Connection {
         }
     }
 
+    private class PollSystemTopologyStatusThread extends Thread {
+        private volatile boolean shutdown;
+
+        public void run() {
+            while (!shutdown) {
+                synchronized (this) {
+                    try {
+                        Thread.sleep(volumeStatusCheckInterval * 1000);
+                        systemTopologyStatus = fetchSystemTopologyStatus(leaderUrl);
+//                        log.info("systemTopologyStatus:" + JSONObject.toJSON(systemTopologyStatus));
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+
+        private void shutdown() {
+            this.shutdown = true;
+            this.interrupt();
+            synchronized (this) {
+                notifyAll();
+            }
+        }
+    }
+
     /**
      * Thread for cycle to check cluster status.
      */
@@ -638,11 +715,13 @@ class Connection {
 
         private void fetchSystemStatus(String url) throws IOException {
             systemClusterStatus = fetchSystemClusterStatus(url);
-            systemTopologyStatus = fetchSystemTopologyStatus(url);
+//            systemTopologyStatus = fetchSystemTopologyStatus(url);
             if (!leaderUrl.equals(systemClusterStatus.getLeader().getUrl())) {
                 leaderUrl = (systemClusterStatus.getLeader().getUrl());
                 log.info("seaweedfs core leader is change to [" + leaderUrl + "]");
             }
+//            log.info("systemTopologyStatus:"+JSONObject.toJSON(systemTopologyStatus));
+//            log.info("systemClusterStatus:"+JSONObject.toJSON(systemClusterStatus));
         }
 
         private void shutdown() {

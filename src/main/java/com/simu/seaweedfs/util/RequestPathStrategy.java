@@ -15,5 +15,6 @@ public class RequestPathStrategy {
     public static final String forceGarbageCollection = "/vol/vacuum";
     public static final String preAllocateVolumes = "/vol/grow";
     public static final String submit = "/submit";
+    public static final String checkVolumeDisk = "/stats/disk";
 
 }

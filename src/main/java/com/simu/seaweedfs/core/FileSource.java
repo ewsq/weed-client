@@ -29,6 +29,8 @@ public class FileSource implements InitializingBean, DisposableBean {
     private List<String> urls = new ArrayList<>(); // host:port
     private int connectionTimeout = 10;
     private int statusExpiry = 5; // 每隔 5s 检查 master leader 的状态
+    private int volumeStatusCheckInterval = 30 * 60;// 默认每隔30分钟检查一次volumes的状态
+    private long volumeSizeWarnLimit = 1024 * 1024 * 1024;//默认剩余 1GB 开始报警
     private int maxConnection = 100;
     private int idleConnectionExpiry = 30;
     private int maxConnectionsPreRoute = 1000;
@@ -39,6 +41,8 @@ public class FileSource implements InitializingBean, DisposableBean {
     private int fileStreamCacheEntries = 1000;
     private long fileStreamCacheSize = 8192;
     private HttpCacheStorage fileStreamCacheStorage = null;
+    private List<String> subscriberPhones = new ArrayList<>();
+    private List<String> subscriberEmails = new ArrayList<>();
     volatile private boolean startup = false;
 
     private Connection connection;
@@ -82,6 +86,8 @@ public class FileSource implements InitializingBean, DisposableBean {
                         ConnectionUtil.convertUrlWithScheme(host + ":" + port),
                         this.connectionTimeout,
                         this.statusExpiry,
+                        this.volumeStatusCheckInterval,
+                        this.volumeSizeWarnLimit,
                         this.idleConnectionExpiry,
                         this.maxConnection,
                         this.maxConnectionsPreRoute,
@@ -219,6 +225,30 @@ public class FileSource implements InitializingBean, DisposableBean {
         this.statusExpiry = statusExpiry;
     }
 
+    public int getVolumeStatusCheckInterval() {
+        return volumeStatusCheckInterval;
+    }
+
+    public void setVolumeStatusCheckInterval(int volumeStatusCheckInterval) {
+        this.volumeStatusCheckInterval = volumeStatusCheckInterval;
+    }
+
+    public List<String> getSubscriberPhones() {
+        return subscriberPhones;
+    }
+
+    public void setSubscriberPhones(List<String> subscriberPhones) {
+        this.subscriberPhones = subscriberPhones;
+    }
+
+    public List<String> getSubscriberEmails() {
+        return subscriberEmails;
+    }
+
+    public void setSubscriberEmails(List<String> subscriberEmails) {
+        this.subscriberEmails = subscriberEmails;
+    }
+
     public int getMaxConnection() {
         return maxConnection;
     }
@@ -281,6 +311,14 @@ public class FileSource implements InitializingBean, DisposableBean {
 
     public void setFileStreamCacheEntries(int fileStreamCacheEntries) {
         this.fileStreamCacheEntries = fileStreamCacheEntries;
+    }
+
+    public long getVolumeSizeWarnLimit() {
+        return volumeSizeWarnLimit;
+    }
+
+    public void setVolumeSizeWarnLimit(long volumeSizeWarnLimit) {
+        this.volumeSizeWarnLimit = volumeSizeWarnLimit;
     }
 
     public long getFileStreamCacheSize() {

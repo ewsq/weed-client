@@ -19,6 +19,9 @@ public class MasterStatus implements Serializable {
         this.url = ConnectionUtil.convertUrlWithScheme(url);
     }
 
+    public MasterStatus(){
+    }
+
     public String getUrl() {
         return url;
     }
