@@ -4,6 +4,7 @@ package com.simu.seaweedfs.core;
 
 import com.simu.seaweedfs.core.topology.SystemClusterStatus;
 import com.simu.seaweedfs.core.topology.SystemTopologyStatus;
+import com.simu.seaweedfs.util.WarningSendUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.cache.HttpCacheStorage;
@@ -41,9 +42,8 @@ public class FileSource implements InitializingBean, DisposableBean {
     private int fileStreamCacheEntries = 1000;
     private long fileStreamCacheSize = 8192;
     private HttpCacheStorage fileStreamCacheStorage = null;
-    private List<String> subscriberPhones = new ArrayList<>();
-    private List<String> subscriberEmails = new ArrayList<>();
     volatile private boolean startup = false;
+    private WarningSendUtil warningSendUtil;
 
     private Connection connection;
 
@@ -97,7 +97,8 @@ public class FileSource implements InitializingBean, DisposableBean {
                         this.enableFileStreamCache,
                         this.fileStreamCacheEntries,
                         this.fileStreamCacheSize,
-                        this.fileStreamCacheStorage);
+                        this.fileStreamCacheStorage,
+                        this.warningSendUtil);
             }
             this.connection.startup();
             this.startup = true;
@@ -233,22 +234,6 @@ public class FileSource implements InitializingBean, DisposableBean {
         this.volumeStatusCheckInterval = volumeStatusCheckInterval;
     }
 
-    public List<String> getSubscriberPhones() {
-        return subscriberPhones;
-    }
-
-    public void setSubscriberPhones(List<String> subscriberPhones) {
-        this.subscriberPhones = subscriberPhones;
-    }
-
-    public List<String> getSubscriberEmails() {
-        return subscriberEmails;
-    }
-
-    public void setSubscriberEmails(List<String> subscriberEmails) {
-        this.subscriberEmails = subscriberEmails;
-    }
-
     public int getMaxConnection() {
         return maxConnection;
     }
@@ -343,5 +328,13 @@ public class FileSource implements InitializingBean, DisposableBean {
 
     public void setUrls(List<String> urls) {
         this.urls = urls;
+    }
+
+    public WarningSendUtil getWarningSendUtil() {
+        return warningSendUtil;
+    }
+
+    public void setWarningSendUtil(WarningSendUtil warningSendUtil) {
+        this.warningSendUtil = warningSendUtil;
     }
 }

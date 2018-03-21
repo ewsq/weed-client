@@ -10,6 +10,7 @@ import com.simu.seaweedfs.core.file.Size;
 import com.simu.seaweedfs.core.file.SizeUnit;
 import com.simu.seaweedfs.core.http.HeaderResponse;
 import com.simu.seaweedfs.core.topology.*;
+import com.simu.seaweedfs.util.WarningSendUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.cache.HttpCacheStorage;
@@ -80,6 +81,7 @@ class Connection {
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
     private CloseableHttpClient httpClient;
     private CacheManager cacheManager = null;
+    private WarningSendUtil warningSendUtil = null;
 
     /**
      * Constructor, build by properties.
@@ -105,7 +107,7 @@ class Connection {
                int maxConnection, int maxConnectionsPreRoute, boolean enableLookupVolumeCache,
                long lookupVolumeCacheExpiry, int lookupVolumeCacheEntries,
                boolean enableFileStreamCache, int fileStreamCacheEntries, long fileStreamCacheSize,
-               HttpCacheStorage fileStreamCacheStorage)
+               HttpCacheStorage fileStreamCacheStorage,WarningSendUtil warningSendUtil)
             throws IOException {
         this.leaderUrl = leaderUrl;
         this.statusExpiry = statusExpiry;
@@ -126,6 +128,7 @@ class Connection {
         this.fileStreamCacheEntries = fileStreamCacheEntries;
         this.fileStreamCacheSize = fileStreamCacheSize;
         this.fileStreamCacheStorage = fileStreamCacheStorage;
+        this.warningSendUtil = warningSendUtil;
     }
 
     /**
@@ -451,17 +454,14 @@ class Connection {
         if (systemClusterStatus != null && systemClusterStatus.getLeader() != null && !systemClusterStatus.getLeader().isActive() && leader.isActive()) {
             log.info("seaweedfs core leader recover [" + leaderUrl + "]");
         }
-        if (!leader.isActive())
-            //TODO 短信或邮件通知
+        if (!leader.isActive()){
+            sendWarning(leaderUrl + " master 服务不可用！");
             throw new SeaweedfsException("seaweedfs core leader is failover");
-
+        }
         for (MasterStatus item : peers) {
             item.setActive(ConnectionUtil.checkUriAlive(item.getUrl()));
             if (!item.isActive()) {
-                //TODO 短信或邮件通知
-                String content = item.getUrl() + " 服务不可用！";
-                notifyWithSMS(content);
-                notifyWithEmail(content);
+                sendWarning(item.getUrl() + " master 服务不可用！");
             }
         }
 
@@ -469,12 +469,11 @@ class Connection {
 
     }
 
-    private void notifyWithSMS(String content) {
-        log.error(content);
-    }
-
-    private void notifyWithEmail(String content) {
-        log.error(content);
+    private void sendWarning(String content){
+        if (null != this.warningSendUtil){
+            warningSendUtil.sendEmail(content);
+            warningSendUtil.sendSMS(content);
+        }
     }
 
     /**
