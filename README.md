@@ -7,7 +7,7 @@
     <groupId>com.simu.gdr</groupId>
     <artifactId>weed-client</artifactId>
     <version>1.0-SNAPSHOT</version>
-    </dependency>
+</dependency>
 ```
 ### application config  
 
